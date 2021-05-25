@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -78,21 +77,50 @@ func scanRow(rows *sql.Rows) (map[string]interface{}, error) {
 	for i, col := range columns {
 
 		switch col.DatabaseTypeName() {
-		case "INT", "DECIMAL":
+		case "INT", "DECIMAL", "BIGINT":
 			if vals[i] == nil {
 				r[col.Name()] = nil
 			} else {
-				r[col.Name()], _ = strconv.ParseFloat(string(vals[i].([]byte)), 64)
+				// r[col.Name()], err = strconv.ParseFloat(string(vals[i].([]byte)), 64)
+				if va, ok := vals[i].([]byte); ok {
+					r[col.Name()] = string(va)
+				} else {
+					r[col.Name()] = vals[i]
+				}
+				// r[col.Name()] = string(vals[i].([]byte))
+				// r[col.Name()] = vals[i]
+				// if err != nil {
+				// 	panic(err)
+				// }
 			}
+		// case "BIGINT":
+		// 	if vals[i] == nil {
+		// 		r[col.Name()] = nil
+		// 	} else {
+		// 		r[col.Name()], err = strconv.ParseFloat(string(vals[i].([]byte)), 64)
+		// 		if err != nil {
+		// 			panic(err)
+		// 		}
+		// 	}
 		case "TINYINT":
 			if vals[i] == nil {
 				r[col.Name()] = nil
 			} else {
-				if string(vals[i].([]byte)) == "1" {
-					r[col.Name()] = true
+				if va, ok := vals[i].([]byte); ok {
+					if string(va) == "1" {
+						r[col.Name()] = true
+					} else {
+						r[col.Name()] = false
+					}
 				} else {
 					r[col.Name()] = false
 				}
+
+				// if string(vals[i].([]byte)) == "1" {
+				// 	r[col.Name()] = true
+				// } else {
+				// 	r[col.Name()] = false
+				// }
 			}
 		case "DATETIME":
 			if vals[i] == nil {
@@ -111,9 +139,7 @@ func scanRow(rows *sql.Rows) (map[string]interface{}, error) {
 			fmt.Printf("sqlhelper未指定数据类型:%+v\n", col)
 		}
 	}
-
 	return r, nil
-
 }
 
 // 最大连接数
