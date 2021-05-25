@@ -21,20 +21,10 @@ type Database interface {
 	Insert(table string, data map[string]interface{}) (int64, error)
 	Update(table, condition string, data map[string]interface{}, args ...interface{}) (int64, error)
 	Delete(table, condition string, args ...interface{}) (int64, error)
+	SetMaxOpenConns(count int)
+	SetMaxIdleConns(count int)
+	SetConnMaxLifetime(second int)
 }
-
-// const (
-// 	DRIVER_NAME = "mysql"
-// 	USER_NAME   = "root"
-// 	PASS_WORD   = "123456"
-// 	HOST        = "localhost"
-// 	PORT        = "3306"
-// 	DATABASE    = "imooc"
-// 	CHARSET     = "utf8"
-// )
-
-// func NewMysqlConn(username string, password string, host string, port string, database string, charset string) (*Dblib, error) {
-//dbDSN := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", username, password, host, port, database, charset)
 
 // 初始化链接
 func OpenDatabase(conn string) (Database, error) {
@@ -125,6 +115,21 @@ func scanRow(rows *sql.Rows) (map[string]interface{}, error) {
 
 	return r, nil
 
+}
+
+// 最大连接数
+func (d *database) SetMaxOpenConns(count int) {
+	d.db.SetMaxOpenConns(count)
+}
+
+// 闲置连接数
+func (d *database) SetMaxIdleConns(count int) {
+	d.db.SetMaxIdleConns(count)
+}
+
+// 最大连接周期
+func (d *database) SetConnMaxLifetime(second int) {
+	d.db.SetConnMaxLifetime(time.Second * time.Second)
 }
 
 // 获取一行记录
