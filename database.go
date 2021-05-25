@@ -11,8 +11,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Dblib struct {
+type database struct {
 	db *sql.DB
+}
+
+type Database interface {
+	GetAll(sql string, args ...interface{}) ([]map[string]interface{}, error)
 }
 
 // const (
@@ -29,7 +33,7 @@ type Dblib struct {
 //dbDSN := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", username, password, host, port, database, charset)
 
 // 初始化链接
-func NewMysqlConn(conn string) (*Dblib, error) {
+func OpenDatabase(conn string) (Database, error) {
 
 	// 打开连接失败
 	db, err := sql.Open("mysql", conn)
@@ -52,7 +56,7 @@ func NewMysqlConn(conn string) (*Dblib, error) {
 		return nil, err
 	}
 
-	p := new(Dblib)
+	p := new(database)
 	p.db = db
 	return p, nil
 }
@@ -120,7 +124,7 @@ func scanRow(rows *sql.Rows) (map[string]interface{}, error) {
 }
 
 // 获取一行记录
-func (d *Dblib) GetOne(sql string, args ...interface{}) (map[string]interface{}, error) {
+func (d *database) GetOne(sql string, args ...interface{}) (map[string]interface{}, error) {
 	rows, err := d.db.Query(sql, args...)
 	if err != nil {
 		return nil, err
@@ -133,7 +137,7 @@ func (d *Dblib) GetOne(sql string, args ...interface{}) (map[string]interface{},
 }
 
 // 获取多行记录
-func (d *Dblib) GetAll(sql string, args ...interface{}) ([]map[string]interface{}, error) {
+func (d *database) GetAll(sql string, args ...interface{}) ([]map[string]interface{}, error) {
 	rows, err := d.db.Query(sql, args...)
 	if err != nil {
 		return nil, err
@@ -157,7 +161,7 @@ func (d *Dblib) GetAll(sql string, args ...interface{}) ([]map[string]interface{
 }
 
 // 写入记录
-func (d *Dblib) Insert(table string, data map[string]interface{}) (int64, error) {
+func (d *database) Insert(table string, data map[string]interface{}) (int64, error) {
 	fields := make([]string, 0)
 	vals := make([]interface{}, 0)
 	placeHolder := make([]string, 0)
@@ -183,7 +187,7 @@ func (d *Dblib) Insert(table string, data map[string]interface{}) (int64, error)
 }
 
 // 更新记录
-func (d *Dblib) Update(table, condition string, data map[string]interface{}, args ...interface{}) (int64, error) {
+func (d *database) Update(table, condition string, data map[string]interface{}, args ...interface{}) (int64, error) {
 	params := make([]string, 0)
 	vals := make([]interface{}, 0)
 
@@ -215,7 +219,7 @@ func (d *Dblib) Update(table, condition string, data map[string]interface{}, arg
 }
 
 // 删除记录
-func (d *Dblib) Delete(table, condition string, args ...interface{}) (int64, error) {
+func (d *database) Delete(table, condition string, args ...interface{}) (int64, error) {
 	sql := "DELETE FROM %s "
 	if condition != "" {
 		sql += "WHERE %s"
