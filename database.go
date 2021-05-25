@@ -17,6 +17,10 @@ type database struct {
 
 type Database interface {
 	GetAll(sql string, args ...interface{}) ([]map[string]interface{}, error)
+	GetOne(sql string, args ...interface{}) (map[string]interface{}, error)
+	Insert(table string, data map[string]interface{}) (int64, error)
+	Update(table, condition string, data map[string]interface{}, args ...interface{}) (int64, error)
+	Delete(table, condition string, args ...interface{}) (int64, error)
 }
 
 // const (
