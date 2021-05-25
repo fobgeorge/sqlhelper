@@ -113,14 +113,13 @@ func scanRow(rows *sql.Rows) (map[string]interface{}, error) {
 						r[col.Name()] = false
 					}
 				} else {
-					r[col.Name()] = false
-				}
+					if vals[i] == 1 {
+						r[col.Name()] = true
+					} else {
+						r[col.Name()] = false
+					}
 
-				// if string(vals[i].([]byte)) == "1" {
-				// 	r[col.Name()] = true
-				// } else {
-				// 	r[col.Name()] = false
-				// }
+				}
 			}
 		case "DATETIME":
 			if vals[i] == nil {
