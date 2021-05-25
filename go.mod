@@ -1,4 +1,4 @@
-module github.com/fobgeorge/gohelper
+module github.com/fobgeorge/sqlhelper
 
 go 1.16
 
