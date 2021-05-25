@@ -28,7 +28,6 @@ type Database interface {
 
 // 初始化链接
 func OpenDatabase(conn string) (Database, error) {
-
 	// 打开连接失败
 	db, err := sql.Open("mysql", conn)
 	//defer MysqlDb.Close();
