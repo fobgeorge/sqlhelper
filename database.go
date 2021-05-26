@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -83,7 +84,7 @@ func scanRow(rows *sql.Rows) (map[string]interface{}, error) {
 			} else {
 				// r[col.Name()], err = strconv.ParseFloat(string(vals[i].([]byte)), 64)
 				if va, ok := vals[i].([]byte); ok {
-					r[col.Name()] = string(va)
+					r[col.Name()], _ = strconv.ParseFloat(string(va), 64)
 				} else {
 					r[col.Name()] = vals[i]
 				}
